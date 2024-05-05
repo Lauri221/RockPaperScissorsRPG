@@ -1,0 +1,198 @@
+import os
+import random
+import time
+
+from colorama import Fore
+
+global player_health
+global computer_health
+global player_win_counter
+global computer_win_counter
+global tie_counter
+
+player_health = 50
+computer_health = 50
+game_round = 1
+roll = 0
+player_win_counter = 0
+computer_win_counter = 0
+tie_counter = 0
+
+#define the function for rolling for damage
+def damage():
+  roll = random.randint(1, 20)
+  if roll == 20:
+    print("Damage roll is 20! Critical Hit!")
+    time.sleep(2)
+    hit = random.randint(1, 20) * 2
+    print("Hit did", hit, "damage")
+    return hit
+  elif roll == 1:
+    print("Damage roll is 1! Critical Fail!")
+    time.sleep(2)
+    hit = random.randint(1, 6) * (-1)
+    print("Opponent healed",Fore.GREEN,abs(hit), "points")
+    return hit
+  else:
+    print("Roll for damage is", roll)
+    time.sleep(1)
+    saving_roll = random.randint(1,6)
+    print("Saving roll:",saving_roll)
+    hit = roll - saving_roll
+    if roll - saving_roll < 0:
+      hit = 0
+      print("The damage was deflected!")
+    print("Hit did",hit,"damage")
+    time.sleep(1)
+    return hit
+
+#define the function when player wins
+def player_win():
+  print(Fore.GREEN,"The player's",p_m,"beats computer's",comp_m,"!",Fore.RESET)
+  time.sleep(2)
+  global computer_health
+  global player_win_counter
+  local_damage = damage()
+  computer_health -= local_damage
+  player_win_counter += 1
+
+#define the function when the computer wins
+def computer_win():
+  print(Fore.RED,"The computer's",comp_m,"beats player's",p_m,"!",Fore.RESET)
+  time.sleep(2)
+  global player_health
+  global computer_win_counter
+  local_damage = damage()
+  player_health = player_health - local_damage
+  computer_win_counter += 1
+
+#define the function for a tie
+def tie():
+  computer_hit = random.randint(1, 6)
+  player_hit = random.randint(1, 6)
+  print(Fore.YELLOW,"It is a tie between", p_m,"and",comp_m,Fore.RESET)
+  time.sleep(2)
+  print("Both hurt each other!")
+  time.sleep(2)
+  global computer_health
+  global player_health
+  global tie_counter
+  computer_health = computer_health - computer_hit
+  player_health = player_health - player_hit
+  print("Player took",Fore.RED,player_hit,Fore.RESET,"damage.")
+  print("Computer took",Fore.GREEN,computer_hit,Fore.RESET,"damage.")
+  
+  tie_counter += 1
+
+#game start screen
+
+print("""🪨📃✂️ RPG Battle 🪨📃✂️""")
+time.sleep(2)
+print("\nWelcome to Rock, Paper, Scissors RPG!")
+time.sleep(2)
+print("\nYou will be fighting against a computer in a battle of Rock, Paper, Scissors.")
+time.sleep(2)
+print("\nAt the beginning of each round, you must choose a move: Rock (R), Paper(P), or Scissors(S).")
+time.sleep(2)
+print("\nBoth you and the computer begin the game with",Fore.GREEN,"50",Fore.RESET,"HP.")
+time.sleep(2)
+print("\nWhen either player or opponent wins, they roll",Fore.YELLOW,"1d20",Fore.RESET,"for damage.")
+time.sleep(2)
+print("\nThe first to reach",Fore.RED,"0",Fore.RESET,"hp gets knocked out and loses.")
+time.sleep(3)
+print("\nGood luck!")
+time.sleep(1)
+
+#While-loop creating the actual game cycle
+while True:
+  computer_move = random.randint(1, 3)
+  if computer_move == 1:
+    comp_m = "Rock"
+  elif computer_move == 2:
+    comp_m = "Paper"
+  else:
+    comp_m = "Scissors"
+  print("\nRound", game_round)
+  time.sleep(1)
+  player_move = input("\nPlease select your move: \nRock (R), Paper (P), or Scissors (S)? ")
+  if player_move == "R" or player_move == "r":
+    p_m = "Rock"
+  elif player_move == "P" or player_move == "p":
+    p_m = "Paper"
+  elif player_move == "S" or player_move == "s":
+    p_m = "Scissors"
+  else:
+    p_m = "Bollocks"
+  time.sleep(1)
+  print("The computer is thinking...")
+  time.sleep(1)
+  print("The computer chose", Fore.RED,comp_m,Fore.RESET)
+  time.sleep(1)
+
+  if (player_move == "R" or player_move == "r") and computer_move == 1:
+    tie()
+  elif (player_move == "R" or player_move == "r") and computer_move == 2:
+    computer_win()
+  elif (player_move == "R" or player_move == "r") and computer_move == 3:
+    player_win()
+  elif (player_move == "P" or player_move == "p") and computer_move == 1:
+    player_win()
+  elif (player_move == "P" or player_move == "p") and computer_move == 2:
+    tie()
+  elif (player_move == "P" or player_move == "p") and computer_move == 3:
+    computer_win()
+  elif (player_move == "S" or player_move == "s") and computer_move == 1:
+    computer_win()
+  elif (player_move == "S" or player_move == "s") and computer_move == 2:
+    player_win()
+  elif (player_move == "S" or player_move == "s") and computer_move == 3:
+    tie()
+  else:
+    print("Something went wrong.")
+    continue
+  #we need to check whether either computer or player has won
+  if player_health <= 0 and computer_health > 0:
+    print("\nThe computer has won!")
+    time.sleep(2)
+    print("\nThanks for playing!")
+    time.sleep(2)
+    break
+  elif player_health > 0 and computer_health <= 0:
+    print("\nYou have won!")
+    time.sleep(2)
+    print("\nThanks for playing!")
+    time.sleep(2)
+    print("\nGood job pressing those buttons!")
+    time.sleep(2)
+    break
+  elif player_health <= 0 and computer_health <= 0:
+    print("\nIt is a tie!")
+    time.sleep(2)
+    print("\nThanks for playing!")
+    time.sleep(2)
+    break
+  else:
+    print("The game is still going!")
+    time.sleep(1)
+    print("\nPlayer health:", player_health)
+    time.sleep(1)
+    print("\nComputer health:", computer_health)
+    time.sleep(1)
+    print("\nNext round beginning...")
+    game_round += 1
+    time.sleep(2)
+    os.system("clear")
+    continue
+
+os.system("clear")
+print("Thanks for playing Rock, Paper, Scissors RPG!")
+time.sleep(1)
+print("\nHere is the breakdown for the game: ")
+time.sleep(1)
+print("\nTotal rounds:",game_round)
+time.sleep(1)
+print("\nPlayer wins:", player_win_counter)
+time.sleep(1)
+print("\nComputer wins:", computer_win_counter)
+time.sleep(1)
+print("\nTies:", tie_counter)
